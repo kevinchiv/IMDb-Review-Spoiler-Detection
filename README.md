@@ -9,15 +9,24 @@ Not everyone labels their review their review with a spoiler alert. There is als
 The goal is to use unsupervised learning techniques like natural language processing and clustering to flag reviews with spoiler. Essentially, we are creating spoiler alerts.
 
 ## Methodology: 
-The dataset was found at https://www.kaggle.com/rmisra/imdb-spoiler-dataset/data
+The data set was found at https://www.kaggle.com/rmisra/imdb-spoiler-dataset/data
 
-Here are the features I started with:
+Here are the features I started with for IMDB_movie_details.json:
 - movie_id, unique id of the movie/tv-show.
-- plot_summary, plot summary of the item. Does not contain spoilers.
-- duration: Item runtime duration.
-- genre: Associated genres.
-- rating: Overall rating for the item.
-- release_date: The release date of the item.
+- plot_summary, plot summary of the item and does not contain spoilers.
+- duration, item runtime duration.
+- genre, associated genres.
+- rating, overall rating for the item.
+- release_date, release date of the item.
+
+Here are the features I started with for IMDB_reviews.json:
+- review_date, date the review was written.
+- movie_id, unique id for the item.
+- user_id, unique id for the review author.
+- is_spoiler, subjective indication of whether review contains a spoiler
+- review_text, text review about the item.
+- rating, rating given by the user to the item.
+- review_summary, short summary of the review.
 
 In addition, I used the data at https://datasets.imdbws.com/
 - movie_id, unique id of the movie/tv-show
