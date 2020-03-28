@@ -23,10 +23,12 @@ Here are the features I started with for IMDB_reviews.json:
 - review_date, date the review was written.
 - movie_id, unique id for the item.
 - user_id, unique id for the review author.
-- is_spoiler, subjective indication of whether review contains a spoiler
+- is_spoiler, indication of whether review contains a spoiler
 - review_text, text review about the item.
 - rating, rating given by the user to the item.
 - review_summary, short summary of the review.
+
+I chose to ignore 'is_spoiler' since this project was an unsupervised learning task and the is_spoiler was subjectively determined.
 
 In addition, I used the data at https://datasets.imdbws.com/
 - movie_id, unique id of the movie/tv-show
