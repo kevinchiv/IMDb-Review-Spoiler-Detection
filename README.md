@@ -1,49 +1,48 @@
 # IMDb Review Spoiler Detection
 
 ## Description: 
-Typically, when searching for a good movie to watch, we visit sites like IMDb to identify some potential picks or learn more about them. And typically, we also look at the review section in order to see how others felt about a movie. However, reviews can contain spoilers and some people prefer to not have any plot points revealed. In some extreme cases, some people will eschew watching a movie all together during a premiere if the plot has been spoiled. Hence, this can hurt ticket sales for movies, especially those that were filmed with the intent of becoming the highest-grossing film of all time.
+I recently developed a data pipeline to extract more insight from Amazon product reviews. Given several comparable options, it can be difficult to select the product that best fits your needs. When it comes to learning more about a product’s features, ratings can be too vague while comments can be too product-specific. 
 
 ## Objective: 
-Not everyone labels their review their review with a spoiler alert. There is also no moderation of the reviews.
-
-The goal is to use unsupervised learning techniques like natural language processing and clustering to flag reviews with spoiler. Essentially, we are creating spoiler alerts.
+The goal is to make it easier to understand compare products on Amazon.
 
 ## Methodology: 
-The data set was found at https://www.kaggle.com/rmisra/imdb-spoiler-dataset/data
+The data set was found at https://s3.amazonaws.com/amazon-reviews-pds/readme.html
 
-Here are the features I started with for IMDB_movie_details.json:
-- movie_id, unique id of the movie/tv-show.
-- plot_summary, plot summary of the item and does not contain spoilers.
-- duration, item runtime duration.
-- genre, associated genres.
-- rating, overall rating for the item.
-- release_date, release date of the item.
+Here are the features I started with:
+- marketplace, the country the item is sold from 
+- customer_id, the ID of the customer who wrote the review
+- review_id, the internal ID of the review
+- product_id, the ID of a specific product
+- product_parent, the group ID that a specific product belongs to
+- product_category, what Amazon product category a product belongs to
+- product_title, the title of a product
+- star_rating, the star rating given in the review
+- helpful_votes, the number of upvotes a review received
+- total_votes, the number of upvotes and downvotes a review received
+- vine string, an indication of whether the review was written by someone in the Amazon Vine program
+- verified_purchase, whether the customer bought the product before reviewing
+- review_headline, the headline of the revoew
+- review_body, the actual text in the review 
+- review_date, the date the review was written
+- year, the year the review was written
 
-Here are the features I started with for IMDB_reviews.json:
-- review_date, date the review was written.
-- movie_id, unique id for the item.
-- user_id, unique id for the review author.
-- is_spoiler, indication of whether review contains a spoiler
-- review_text, text review about the item.
-- rating, rating given by the user to the item.
-- review_summary, short summary of the review.
+As mentioned before, ratings can be too vague while comments can be too product-specific. I used logistic regression, sentiment analysis, and word2vec to strike a balance between these two levels of granularity. 
 
-I chose to ignore 'is_spoiler' since this project was an unsupervised learning task and the is_spoiler was subjectively determined.
+As proof of concept, I processed Amazon product review data for laptops. For each laptop, I chose to focus on particularly helpful reviews and those written by the Amazon Vine program. I then decomposed each select review into sentence tokens to better capture consumer sentiment towards each product feature. 
 
-In addition, I used the data at https://datasets.imdbws.com/
-- movie_id, unique id of the movie/tv-show
-- title, English title of the movie/tv-show
+Afterwards, I used logistic regression to identify bigrams and trigrams in each sentence token that were frequently associated with positive or negative sentiment. This allowed me to produce a list of product-specific pros or cons. I then used word2vec to filter and map these product-specific pros or cons to more general product features. For example, words like “glossy screen” and “full screen” in figure 1 were assigned to the “screen” feature label. 
 
-I solely focused on movies with decently long plot synopses i.e. 50 sentences. I then used natural language processing techniques like vectorizing, topic modeling (via NMF, LDA, and LSA), and cosine similarity to compare each review to its respective plot synopsis. If a review had relatively high similarity scores to the plot synopsis, I considered it a review with spoiler content. Afterwards, I supplemented the similarity scores with some text metrics. I then used a subset of the scores and text metrics as features for clustering to identify two groups of reviews - those with spoiler content and those without. 
+I then collected the average sentiment about each general product feature to produce a more visual method of comparing products. This is encapsulated in the radar plots of sentiments I produced. I selected a few general product features laptop consumers might be interested in; these are the ones that appear on the circumference of the radar plot. The sentiment scale goes from 0 to 1, with 0 being most negative and 1 being most positive. 
+
 
 ## Results: <br>
-Since I was only interested in having two clusters, metrics like inertia and sihoulette coefficient were not valid for my project. I mainly relied on visual inspection through visualizations like a UMAP projection to see how distinct the clusters were. I found that the two clusters were visually distinct and separate enough from each other. 
+I would refer to the images stored in the "img" folder.
 
-The results indicate that: <br>
-- reviews with higher similarity scores were flagged as ones with spoiler content
-- reviews flagged as spoiler content also had higher word difficulty scores
+Logistic regression paired with some text filtering produced some specific, human-interpretible pros and cons.
 
-I think high similarity scores go hand in hand with high word difficult scores. A higher word difficulty score does not necessarily mean a user is using more advanced vocabularly. Rather, they are most likely mistyping words as they write their reviews. This carelessness in grammar could go hand in hand with a disregard for spoiling a movie to those who have yet to watch.
+Generally speaking, a larger polygon area on the radar plot of sentiment represents a better product. In "macbook vs asus laptop.png", the Apple MacBook Pro 13.3 performs much better than the ASUS laptop in terms of ergonomics, build quality, battery life, and perceived value. On the other hand, the ASUS laptop performs better in terms of performance specs, cooling, and the number of ports.  
 
-Afterwards, I fed the non-spoiler reviews into a text generative model i.e. gpt2 to see if I could produce more data. Admittedly, I did not have the gpu performance to produce many reviews, but the generated reviews are very coherent. Absolute loss is not a measure of text generation performance, but the change in the absolute loss does indicate whether the text will improve or not.
+I further extended my work to compare between brands as well. This is helpful in cases where a customer wants to study brand reputations to better understand their potential purchases. In "apple vs asus.png", the blue polygon represents customer sentiment towards Apple laptops while the green polygon represents customer sentiment towards ASUS laptops for these features.
 
+There are some caveats and room for future improvements, but the model seems generally extendable to other product categories.
